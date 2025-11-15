@@ -53,6 +53,7 @@ SELECT * from Visits;
 --count distinct
 --group by
 --aggregate functions: count, sum, avg, min, max
+--case when
 --window functions
 --CTE (with)
 
