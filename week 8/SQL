@@ -1,0 +1,1433 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMOLfdzG5tvCZRpfTFngzq6",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/AAAAlanHe/DSC110/blob/main/week%208/SQL\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Data Prep for Machine Learning Prediction"
+      ],
+      "metadata": {
+        "id": "V27HA4b9qy6T"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "o5Yhgw82k9UQ"
+      },
+      "outputs": [],
+      "source": [
+        "#import pandas\n",
+        "import pandas as pd\n",
+        "from sklearn.preprocessing import StandardScaler\n",
+        "from sklearn.model_selection import train_test_split"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Read the CSV file\n",
+        "df = pd.read_csv('https://raw.githubusercontent.com/osoliman/DSC110/refs/heads/main/Datasets/nhanes_final.csv')"
+      ],
+      "metadata": {
+        "id": "wEAMLQYitXkX"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#check data\n",
+        "df.head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "PSlObd1nt3c9",
+        "outputId": "98d604c8-7431-4dcc-f3db-7a55fd962ea0"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "         id  gender   age  race_ethnicity  education   bmi  height_cm  \\\n",
+              "0  130378.0     1.0  43.0             6.0        5.0  27.0      179.5   \n",
+              "1  130379.0     1.0  66.0             3.0        5.0  33.5      174.2   \n",
+              "2  130380.0     2.0  44.0             2.0        3.0  29.7      152.9   \n",
+              "3  130381.0     2.0   5.0             7.0        NaN  23.8      120.1   \n",
+              "4  130382.0     1.0   2.0             3.0        NaN   NaN        NaN   \n",
+              "\n",
+              "   systolic_bp  has_diabetes  hba1c  fasting_glucose  \n",
+              "0        135.0           2.0    5.6            113.0  \n",
+              "1        121.0           2.0    5.6             99.0  \n",
+              "2        111.0           1.0    6.2            156.0  \n",
+              "3          NaN           2.0    NaN              NaN  \n",
+              "4          NaN           2.0    NaN              NaN  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-6693369b-fd09-4f97-bc37-a1a4f75a76a5\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>id</th>\n",
+              "      <th>gender</th>\n",
+              "      <th>age</th>\n",
+              "      <th>race_ethnicity</th>\n",
+              "      <th>education</th>\n",
+              "      <th>bmi</th>\n",
+              "      <th>height_cm</th>\n",
+              "      <th>systolic_bp</th>\n",
+              "      <th>has_diabetes</th>\n",
+              "      <th>hba1c</th>\n",
+              "      <th>fasting_glucose</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>130378.0</td>\n",
+              "      <td>1.0</td>\n",
+              "      <td>43.0</td>\n",
+              "      <td>6.0</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>27.0</td>\n",
+              "      <td>179.5</td>\n",
+              "      <td>135.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>5.6</td>\n",
+              "      <td>113.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>130379.0</td>\n",
+              "      <td>1.0</td>\n",
+              "      <td>66.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>33.5</td>\n",
+              "      <td>174.2</td>\n",
+              "      <td>121.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>5.6</td>\n",
+              "      <td>99.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>130380.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>44.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>29.7</td>\n",
+              "      <td>152.9</td>\n",
+              "      <td>111.0</td>\n",
+              "      <td>1.0</td>\n",
+              "      <td>6.2</td>\n",
+              "      <td>156.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>3</th>\n",
+              "      <td>130381.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>7.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>23.8</td>\n",
+              "      <td>120.1</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>4</th>\n",
+              "      <td>130382.0</td>\n",
+              "      <td>1.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-6693369b-fd09-4f97-bc37-a1a4f75a76a5')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-6693369b-fd09-4f97-bc37-a1a4f75a76a5 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-6693369b-fd09-4f97-bc37-a1a4f75a76a5');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "variable_name": "df",
+              "summary": "{\n  \"name\": \"df\",\n  \"rows\": 11933,\n  \"fields\": [\n    {\n      \"column\": \"id\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 3444.90471566341,\n        \"min\": 130378.0,\n        \"max\": 142310.0,\n        \"num_unique_values\": 11933,\n        \"samples\": [\n          140550.0,\n          140700.0,\n          139573.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"gender\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.4989433687736375,\n        \"min\": 1.0,\n        \"max\": 2.0,\n        \"num_unique_values\": 2,\n        \"samples\": [\n          2.0,\n          1.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"age\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 25.60199011389104,\n        \"min\": 5.397605346934028e-79,\n        \"max\": 80.0,\n        \"num_unique_values\": 81,\n        \"samples\": [\n          53.0,\n          43.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"race_ethnicity\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1.5183792913880576,\n        \"min\": 1.0,\n        \"max\": 7.0,\n        \"num_unique_values\": 6,\n        \"samples\": [\n          6.0,\n          3.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"education\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1.1537500073532598,\n        \"min\": 1.0,\n        \"max\": 9.0,\n        \"num_unique_values\": 6,\n        \"samples\": [\n          5.0,\n          3.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"bmi\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 8.137780644865714,\n        \"min\": 11.1,\n        \"max\": 74.8,\n        \"num_unique_values\": 451,\n        \"samples\": [\n          20.8,\n          27.2\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"height_cm\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 19.86494275452826,\n        \"min\": 79.1,\n        \"max\": 200.7,\n        \"num_unique_values\": 995,\n        \"samples\": [\n          102.3,\n          150.7\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"systolic_bp\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 18.561052201733208,\n        \"min\": 61.0,\n        \"max\": 232.0,\n        \"num_unique_values\": 137,\n        \"samples\": [\n          185.0,\n          191.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"has_diabetes\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.3587263599491277,\n        \"min\": 1.0,\n        \"max\": 9.0,\n        \"num_unique_values\": 4,\n        \"samples\": [\n          1.0,\n          9.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"hba1c\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1.0548988958913348,\n        \"min\": 3.2,\n        \"max\": 17.1,\n        \"num_unique_values\": 101,\n        \"samples\": [\n          13.0,\n          7.5\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"fasting_glucose\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 32.476268146948144,\n        \"min\": 59.0,\n        \"max\": 561.0,\n        \"num_unique_values\": 199,\n        \"samples\": [\n          158.0,\n          101.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {},
+          "execution_count": 3
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Filtering"
+      ],
+      "metadata": {
+        "id": "krDiHxK2vqe6"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#filter the group of age>= 18\n",
+        "df = df[df['age'] >= 18].copy()"
+      ],
+      "metadata": {
+        "id": "xiSeTPMlugzq"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#the minimun age in that group is 18\n",
+        "df['age'].min()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "6HrB7LRSvt9M",
+        "outputId": "535af022-e831-475f-a151-cebb2cf3cdae"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "18.0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 8
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "XNRZLpDMwAQY",
+        "outputId": "d058c605-e5ef-4287-95ad-aa92443f0f1d"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(8153, 11)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Dropping Coloums"
+      ],
+      "metadata": {
+        "id": "Ldeirt24xXMU"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#drop three coloums\n",
+        "df = df.drop(columns=['id', 'hba1c', 'fasting_glucose'])"
+      ],
+      "metadata": {
+        "id": "zSBcznuRxTXT"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#number of colums get 3 less after dropping\n",
+        "df.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "3lyBEIuCx_ht",
+        "outputId": "21faeff2-e8c8-4775-8602-d0229aabb65d"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(8153, 8)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 11
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#the table after dropping\n",
+        "df.head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "Ktu3248SydoE",
+        "outputId": "c0f9514c-55a3-4b93-847d-13c75e8c414a"
+      },
+      "execution_count": 12,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "   gender   age  race_ethnicity  education   bmi  height_cm  systolic_bp  \\\n",
+              "0     1.0  43.0             6.0        5.0  27.0      179.5        135.0   \n",
+              "1     1.0  66.0             3.0        5.0  33.5      174.2        121.0   \n",
+              "2     2.0  44.0             2.0        3.0  29.7      152.9        111.0   \n",
+              "6     1.0  43.0             1.0        2.0   NaN        NaN          NaN   \n",
+              "7     2.0  65.0             3.0        3.0   NaN        NaN          NaN   \n",
+              "\n",
+              "   has_diabetes  \n",
+              "0           2.0  \n",
+              "1           2.0  \n",
+              "2           1.0  \n",
+              "6           2.0  \n",
+              "7           2.0  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-eb6a79f8-339e-46f8-ab1d-b58ecb5f8e70\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>gender</th>\n",
+              "      <th>age</th>\n",
+              "      <th>race_ethnicity</th>\n",
+              "      <th>education</th>\n",
+              "      <th>bmi</th>\n",
+              "      <th>height_cm</th>\n",
+              "      <th>systolic_bp</th>\n",
+              "      <th>has_diabetes</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>1.0</td>\n",
+              "      <td>43.0</td>\n",
+              "      <td>6.0</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>27.0</td>\n",
+              "      <td>179.5</td>\n",
+              "      <td>135.0</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>1.0</td>\n",
+              "      <td>66.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>5.0</td>\n",
+              "      <td>33.5</td>\n",
+              "      <td>174.2</td>\n",
+              "      <td>121.0</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>2.0</td>\n",
+              "      <td>44.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>29.7</td>\n",
+              "      <td>152.9</td>\n",
+              "      <td>111.0</td>\n",
+              "      <td>1.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>6</th>\n",
+              "      <td>1.0</td>\n",
+              "      <td>43.0</td>\n",
+              "      <td>1.0</td>\n",
+              "      <td>2.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>7</th>\n",
+              "      <td>2.0</td>\n",
+              "      <td>65.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>3.0</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-eb6a79f8-339e-46f8-ab1d-b58ecb5f8e70')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-eb6a79f8-339e-46f8-ab1d-b58ecb5f8e70 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-eb6a79f8-339e-46f8-ab1d-b58ecb5f8e70');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "variable_name": "df",
+              "summary": "{\n  \"name\": \"df\",\n  \"rows\": 8153,\n  \"fields\": [\n    {\n      \"column\": \"gender\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.49737599938344074,\n        \"min\": 1.0,\n        \"max\": 2.0,\n        \"num_unique_values\": 2,\n        \"samples\": [\n          2.0,\n          1.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"age\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 18.55305987848625,\n        \"min\": 18.0,\n        \"max\": 80.0,\n        \"num_unique_values\": 63,\n        \"samples\": [\n          23.0,\n          37.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"race_ethnicity\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1.4079019719511061,\n        \"min\": 1.0,\n        \"max\": 7.0,\n        \"num_unique_values\": 6,\n        \"samples\": [\n          6.0,\n          3.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"education\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 1.1537500073532598,\n        \"min\": 1.0,\n        \"max\": 9.0,\n        \"num_unique_values\": 6,\n        \"samples\": [\n          5.0,\n          3.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"bmi\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 7.395826468025211,\n        \"min\": 11.1,\n        \"max\": 74.8,\n        \"num_unique_values\": 416,\n        \"samples\": [\n          45.0,\n          45.6\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"height_cm\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 10.051394201949364,\n        \"min\": 133.0,\n        \"max\": 200.7,\n        \"num_unique_values\": 511,\n        \"samples\": [\n          180.6,\n          164.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"systolic_bp\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 18.45181207485538,\n        \"min\": 73.0,\n        \"max\": 232.0,\n        \"num_unique_values\": 133,\n        \"samples\": [\n          159.0,\n          161.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    },\n    {\n      \"column\": \"has_diabetes\",\n      \"properties\": {\n        \"dtype\": \"number\",\n        \"std\": 0.40957430463522115,\n        \"min\": 1.0,\n        \"max\": 9.0,\n        \"num_unique_values\": 4,\n        \"samples\": [\n          1.0,\n          9.0\n        ],\n        \"semantic_type\": \"\",\n        \"description\": \"\"\n      }\n    }\n  ]\n}"
+            }
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Label Mapping"
+      ],
+      "metadata": {
+        "id": "9JaTnUSC1fHq"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "gender_map = {1.0: 'Male', 2.0: 'Female'}\n",
+        "race_map = {1.0: 'Mexican American',\n",
+        "       2.0: 'Other Hispanic',\n",
+        "       3.0: 'White',\n",
+        "       4.0: 'Black',\n",
+        "       6.0: 'Asian',\n",
+        "       7.0: 'Other'}\n",
+        "education_map ={1.0: 'Less than 9th',\n",
+        "         2.0: '9-11th grade',\n",
+        "         3.0: 'High school',\n",
+        "         4.0: 'Some college',\n",
+        "         5.0: 'College grad',\n",
+        "         9.0: 'Do not know'}"
+      ],
+      "metadata": {
+        "id": "4CBh6s4V1hlv"
+      },
+      "execution_count": 13,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#label gender\n",
+        "df['gender'] = df['gender'].map(gender_map)"
+      ],
+      "metadata": {
+        "id": "UMr0v0A42BB3"
+      },
+      "execution_count": 14,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 206
+        },
+        "id": "-gMbTvgi2RsT",
+        "outputId": "d3fc810b-34ff-49ca-e2a2-4035da988803"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "  gender   age    race_ethnicity     education   bmi  height_cm  systolic_bp  \\\n",
+              "0    NaN  43.0             Asian  College grad  27.0      179.5        135.0   \n",
+              "1    NaN  66.0             White  College grad  33.5      174.2        121.0   \n",
+              "2    NaN  44.0    Other Hispanic   High school  29.7      152.9        111.0   \n",
+              "6    NaN  43.0  Mexican American  9-11th grade   NaN        NaN          NaN   \n",
+              "7    NaN  65.0             White   High school   NaN        NaN          NaN   \n",
+              "\n",
+              "   has_diabetes  \n",
+              "0           2.0  \n",
+              "1           2.0  \n",
+              "2           1.0  \n",
+              "6           2.0  \n",
+              "7           2.0  "
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-e724232c-7563-4a8c-9388-f70959b39ec6\" class=\"colab-df-container\">\n",
+              "    <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>gender</th>\n",
+              "      <th>age</th>\n",
+              "      <th>race_ethnicity</th>\n",
+              "      <th>education</th>\n",
+              "      <th>bmi</th>\n",
+              "      <th>height_cm</th>\n",
+              "      <th>systolic_bp</th>\n",
+              "      <th>has_diabetes</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>NaN</td>\n",
+              "      <td>43.0</td>\n",
+              "      <td>Asian</td>\n",
+              "      <td>College grad</td>\n",
+              "      <td>27.0</td>\n",
+              "      <td>179.5</td>\n",
+              "      <td>135.0</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>NaN</td>\n",
+              "      <td>66.0</td>\n",
+              "      <td>White</td>\n",
+              "      <td>College grad</td>\n",
+              "      <td>33.5</td>\n",
+              "      <td>174.2</td>\n",
+              "      <td>121.0</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>NaN</td>\n",
+              "      <td>44.0</td>\n",
+              "      <td>Other Hispanic</td>\n",
+              "      <td>High school</td>\n",
+              "      <td>29.7</td>\n",
+              "      <td>152.9</td>\n",
+              "      <td>111.0</td>\n",
+              "      <td>1.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>6</th>\n",
+              "      <td>NaN</td>\n",
+              "      <td>43.0</td>\n",
+              "      <td>Mexican American</td>\n",
+              "      <td>9-11th grade</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>7</th>\n",
+              "      <td>NaN</td>\n",
+              "      <td>65.0</td>\n",
+              "      <td>White</td>\n",
+              "      <td>High school</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>NaN</td>\n",
+              "      <td>2.0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "    <div class=\"colab-df-buttons\">\n",
+              "\n",
+              "  <div class=\"colab-df-container\">\n",
+              "    <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-e724232c-7563-4a8c-9388-f70959b39ec6')\"\n",
+              "            title=\"Convert this dataframe to an interactive table.\"\n",
+              "            style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\">\n",
+              "    <path d=\"M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z\"/>\n",
+              "  </svg>\n",
+              "    </button>\n",
+              "\n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-buttons div {\n",
+              "      margin-bottom: 4px;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "    <script>\n",
+              "      const buttonEl =\n",
+              "        document.querySelector('#df-e724232c-7563-4a8c-9388-f70959b39ec6 button.colab-df-convert');\n",
+              "      buttonEl.style.display =\n",
+              "        google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "      async function convertToInteractive(key) {\n",
+              "        const element = document.querySelector('#df-e724232c-7563-4a8c-9388-f70959b39ec6');\n",
+              "        const dataTable =\n",
+              "          await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                    [key], {});\n",
+              "        if (!dataTable) return;\n",
+              "\n",
+              "        const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "          '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "          + ' to learn more about interactive tables.';\n",
+              "        element.innerHTML = '';\n",
+              "        dataTable['output_type'] = 'display_data';\n",
+              "        await google.colab.output.renderOutput(dataTable, element);\n",
+              "        const docLink = document.createElement('div');\n",
+              "        docLink.innerHTML = docLinkHtml;\n",
+              "        element.appendChild(docLink);\n",
+              "      }\n",
+              "    </script>\n",
+              "  </div>\n",
+              "\n",
+              "\n",
+              "    </div>\n",
+              "  </div>\n"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "dataframe",
+              "variable_name": "df",
+              "repr_error": "Out of range float values are not JSON compliant: nan"
+            }
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#label race_ethnicity\n",
+        "df['race_ethnicity'] = df['race_ethnicity'].map(race_map)"
+      ],
+      "metadata": {
+        "id": "bF-PPPr-2sE7"
+      },
+      "execution_count": 23,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df['race_ethnicity'].head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 241
+        },
+        "id": "Hy5irzCz3Bgc",
+        "outputId": "98227731-98f5-491b-d17b-c6fd12e60a50"
+      },
+      "execution_count": 31,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0    NaN\n",
+              "1    NaN\n",
+              "2    NaN\n",
+              "6    NaN\n",
+              "7    NaN\n",
+              "Name: race_ethnicity, dtype: object"
+            ],
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>race_ethnicity</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>6</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>7</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div><br><label><b>dtype:</b> object</label>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 31
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#label education\n",
+        "df['education'] = df['education'].map(education_map)"
+      ],
+      "metadata": {
+        "id": "HgsGhnnf2zPU"
+      },
+      "execution_count": 20,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df['education'].head()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 241
+        },
+        "id": "5EreVp5b4ZHn",
+        "outputId": "497d593c-cdba-41fe-cca0-a16e9db011da"
+      },
+      "execution_count": 30,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0    NaN\n",
+              "1    NaN\n",
+              "2    NaN\n",
+              "6    NaN\n",
+              "7    NaN\n",
+              "Name: education, dtype: object"
+            ],
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>education</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>1</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>6</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>7</th>\n",
+              "      <td>NaN</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div><br><label><b>dtype:</b> object</label>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 30
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Missing values"
+      ],
+      "metadata": {
+        "id": "0cv2DFi371Q7"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.isna().sum()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 335
+        },
+        "id": "B-UV6SiS72v5",
+        "outputId": "d4689ad2-5a6d-4fbb-8385-6fe02aad6fa7"
+      },
+      "execution_count": 32,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "gender            8153\n",
+              "age                  0\n",
+              "race_ethnicity    8153\n",
+              "education         8153\n",
+              "bmi               1918\n",
+              "height_cm         1891\n",
+              "systolic_bp       2030\n",
+              "has_diabetes         3\n",
+              "dtype: int64"
+            ],
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>gender</th>\n",
+              "      <td>8153</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>age</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>race_ethnicity</th>\n",
+              "      <td>8153</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>education</th>\n",
+              "      <td>8153</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>bmi</th>\n",
+              "      <td>1918</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>height_cm</th>\n",
+              "      <td>1891</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>systolic_bp</th>\n",
+              "      <td>2030</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>has_diabetes</th>\n",
+              "      <td>3</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div><br><label><b>dtype:</b> int64</label>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 32
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Missing values imputation\n",
+        "df['bmi']         = df['bmi'].fillna(df['bmi'].mean())\n",
+        "df['height_cm']   = df['height_cm'].fillna(df['height_cm'].mean())\n",
+        "df['systolic_bp'] = df['systolic_bp'].fillna(df['systolic_bp'].mean())"
+      ],
+      "metadata": {
+        "id": "6EGfo7Gk75VQ"
+      },
+      "execution_count": 34,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Missing values removal\n",
+        "df = df.dropna(subset=['education']).copy()"
+      ],
+      "metadata": {
+        "id": "0rcoWg-17_E_"
+      },
+      "execution_count": 35,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#Missing values check\n",
+        "df.isna().sum()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 335
+        },
+        "id": "NaK7s90h7_ku",
+        "outputId": "f3a5a3f7-4a46-4c16-c49c-1453d872fb01"
+      },
+      "execution_count": 36,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "gender            0\n",
+              "age               0\n",
+              "race_ethnicity    0\n",
+              "education         0\n",
+              "bmi               0\n",
+              "height_cm         0\n",
+              "systolic_bp       0\n",
+              "has_diabetes      0\n",
+              "dtype: int64"
+            ],
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>0</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>gender</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>age</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>race_ethnicity</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>education</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>bmi</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>height_cm</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>systolic_bp</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>has_diabetes</th>\n",
+              "      <td>0</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div><br><label><b>dtype:</b> int64</label>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 36
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Defining target variable"
+      ],
+      "metadata": {
+        "id": "rsSL2bTG9w9C"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = df[df['has_diabetes'].isin([1.0, 2.0])].copy()"
+      ],
+      "metadata": {
+        "id": "ha8LYWwl8Mkn"
+      },
+      "execution_count": 38,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#target is has_diabete\n",
+        "df['has_diabetes'] = df['has_diabetes'].map({1.0: 1, 2.0: 0})"
+      ],
+      "metadata": {
+        "id": "334UcA6r94Dq"
+      },
+      "execution_count": 39,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "z-l4uayV96X4",
+        "outputId": "0dcb1def-1cae-4c9a-c8b0-1bd7a1986f24"
+      },
+      "execution_count": 40,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(0, 8)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 40
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# One-Hot Encodeing"
+      ],
+      "metadata": {
+        "id": "lHqa3SvD-35U"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df = pd.get_dummies(df, columns=['gender', 'race_ethnicity', 'education'],drop_first=True)"
+      ],
+      "metadata": {
+        "id": "0WEzzP1xtKSb"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Scaling numeric variables"
+      ],
+      "metadata": {
+        "id": "NNqMZ7mptinP"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "numeric_cols = ['age', 'bmi', 'height_cm', 'systolic_bp']\n",
+        "scaler = StandardScaler()\n",
+        "df[numeric_cols] = scaler.fit_transform(df[numeric_cols])\n",
+        "#verifying"
+      ],
+      "metadata": {
+        "id": "GVRC1Rxhtnex"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Train-test split"
+      ],
+      "metadata": {
+        "id": "RlqP8t41toKk"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X = df.drop(columns=['has_diabetes'])\n",
+        "y = df['has_diabetes']\n",
+        "\n",
+        "X_train, X_test, y_train, y_test = train_test_split(\n",
+        "    X, y, test_size=0.2, random_state=42)"
+      ],
+      "metadata": {
+        "id": "ZK04J7bXtsG8"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
